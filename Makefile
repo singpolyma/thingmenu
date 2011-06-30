@@ -15,7 +15,7 @@ options:
 	@echo "LDFLAGS  = ${LDFLAGS}"
 	@echo "CC       = ${CC}"
 
-config.h: config.mk
+config.h:
 	@echo creating $@ from config.def.h
 	@cp config.def.h $@
 
