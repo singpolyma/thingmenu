@@ -25,7 +25,7 @@ config.h: config.mk
 
 ${OBJ}: config.mk
 
-${NAME}: ${OBJ}
+${NAME}: config.h ${OBJ}
 	@echo CC -o $@
 	@${CC} -o $@ ${OBJ} ${LDFLAGS}
 
