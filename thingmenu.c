@@ -31,6 +31,8 @@ typedef unsigned long ulong;
 typedef struct {
 	ulong norm[ColLast];
 	ulong press[ColLast];
+	ulong high[ColLast];
+
 	Drawable drawable;
 	GC gc;
 	struct {
@@ -47,11 +49,13 @@ typedef struct {
 	char *cmd;
 	uint width;
 	int x, y, w, h;
+	Bool highlighted;
 	Bool pressed;
 	Bool forceexit;
 } Entry;
 
 /* function declarations */
+static void motionnotify(XEvent *e);
 static void buttonpress(XEvent *e);
 static void buttonrelease(XEvent *e);
 static void cleanup(void);
@@ -81,6 +85,7 @@ static void (*handler[LASTEvent]) (XEvent *) = {
 	[UnmapNotify] = unmapnotify,
 	[Expose] = expose,
 	[LeaveNotify] = leavenotify,
+	[MotionNotify] = motionnotify
 };
 
 static Display *dpy;
@@ -96,6 +101,30 @@ int oneshot = 1;
 
 /* configuration, allows nested code to access above variables */
 #include "config.h"
+
+void
+motionnotify(XEvent *e)
+{
+	XPointerMovedEvent *ev = &e->xmotion;
+	int i;
+
+	for(i = 0; i < nentries; i++) {
+		if(ev->x > entries[i]->x
+				&& ev->x < entries[i]->x + entries[i]->w
+				&& ev->y > entries[i]->y
+				&& ev->y < entries[i]->y + entries[i]->h) {
+			if (entries[i]->highlighted != True) {
+				entries[i]->highlighted = True;
+				drawentry(entries[i]);
+			}
+			continue;
+		}
+		if (entries[i]->highlighted == True) {
+			entries[i]->highlighted = False;
+			drawentry(entries[i]);
+		}
+	}
+}
 
 void
 buttonpress(XEvent *e)
@@ -177,6 +206,8 @@ drawentry(Entry *e)
 
 	if(e->pressed)
 		col = dc.press;
+	else if(e->highlighted)
+		col = dc.high;
 	else
 		col = dc.norm;
 
@@ -225,8 +256,9 @@ findentry(int x, int y)
 	for(i = 0; i < nentries; i++) {
 		if(x > entries[i]->x && x < entries[i]->x + entries[i]->w
 				&& y > entries[i]->y
-				&& y < entries[i]->y + entries[i]->h)
+				&& y < entries[i]->y + entries[i]->h) {
 			return entries[i];
+		}
 	}
 	return NULL;
 }
@@ -258,11 +290,9 @@ initfont(const char *fontstr)
 		XFreeStringList(missing);
 	}
 	if(dc.font.set) {
-		XFontSetExtents *font_extents;
 		XFontStruct **xfonts;
 		char **font_names;
 		dc.font.ascent = dc.font.descent = 0;
-		font_extents = XExtentsOfFontSet(dc.font.set);
 		n = XFontsOfFontSet(dc.font.set, &xfonts, &font_names);
 		for(i = 0, dc.font.ascent = 0, dc.font.descent = 0; i < n; i++) {
 			dc.font.ascent = MAX(dc.font.ascent, (*xfonts)->ascent);
@@ -374,6 +404,9 @@ setup(void)
 	dc.norm[ColFG] = getcolor(normfgcolor);
 	dc.press[ColBG] = getcolor(pressbgcolor);
 	dc.press[ColFG] = getcolor(pressfgcolor);
+	dc.high[ColBG] = getcolor(highlightbgcolor);
+	dc.high[ColFG] = getcolor(highlightfgcolor);
+
 	dc.drawable = XCreatePixmap(dpy, root, ww, wh, DefaultDepth(dpy, screen));
 	dc.gc = XCreateGC(dpy, root, 0, 0);
 	if(!dc.font.set)
@@ -388,7 +421,8 @@ setup(void)
 			    CopyFromParent, CopyFromParent, CopyFromParent,
 			    CWOverrideRedirect | CWBorderPixel | CWBackingPixel, &wa);
 	XSelectInput(dpy, win, StructureNotifyMask|ButtonReleaseMask|
-			ButtonPressMask|ExposureMask|LeaveWindowMask);
+			ButtonPressMask|ExposureMask|LeaveWindowMask|
+			PointerMotionMask);
 
 	sizeh = XAllocSizeHints();
 	sizeh->flags = PMaxSize | PMinSize;
@@ -512,19 +546,24 @@ main(int argc, char *argv[])
 	}
 
 	for (; argv[i]; i++) {
-		sscanf(argv[i], "%1024m[^:]:%1024m[^\n]", &label, &cmd);
-		if (label == NULL || cmd == NULL) {
-			if (label == NULL)
-				free(label);
-			if (cmd == NULL)
-				free(cmd);
-			usage(argv[0]);
+		label = argv[i];
+		cmd = strchr(label, ':');
+		if (cmd == NULL) {
+			cmd = label;
+		} else {
+			*cmd++ = '\0';
 		}
+
 		entries = realloc(entries, sizeof(entries[0])*(++nentries));
 		entries[nentries-1] = malloc(sizeof(*entries[0]));
 		bzero(entries[nentries-1], sizeof(*entries[0]));
-		entries[nentries-1]->label = label;
-		entries[nentries-1]->cmd = cmd;
+
+		entries[nentries-1]->label = strdup(label);
+		if (entries[nentries-1]->label == NULL)
+			die("strdup returned NULL\n");
+		entries[nentries-1]->cmd = strdup(cmd);
+		if (entries[nentries-1]->cmd == NULL)
+			die("strdup returned NULL\n");
 	}
 	if (nentries < 1)
 		usage(argv[0]);

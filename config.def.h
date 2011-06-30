@@ -3,5 +3,7 @@ static const char *font = "-*-*-medium-*-*-*-14-*-*-*-*-*-*-*";
 static const char *normbgcolor = "#222222";
 static const char *normfgcolor = "#cccccc";
 static const char *pressbgcolor = "#ffffff";
-static const char *pressfgcolor = "#555555";
+static const char *pressfgcolor = "#000000";
+static const char *highlightbgcolor = "#bbbbbb";
+static const char *highlightfgcolor = "#000000";
 
