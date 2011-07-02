@@ -1,0 +1,123 @@
+.Dd July 02, 2011
+.Dt THINGMENU 1
+.Os
+.
+.Sh NAME
+.Nm thingmenu 
+.Nd a simple menu for X11
+.
+.Sh SYNOPSIS
+.Nm
+.Bk -words
+.Op Fl x
+.Op Fl s
+.Op Fl o
+.Op Fl wh Ar height
+.Op Fl ww Ar width
+.Op Fl wx Ar x position
+.Op Fl wy Ar y position
+.Op Fl -
+.Ar [label:]cmd ...
+.Ek
+.
+.Sh DESCRIPTION
+.Bd -filled
+.Nm
+is a simple menu for X11. The menu can be displayed in a horizontal or
+a vertical layout. The manual specification of the parameters of the
+menu makes it flexible to be used in many circumstances.
+.Ed
+. 
+.Sh IMPLEMENTATION
+.Bd -filled
+Installation is as straighforward as grabbing the tar.gz file, extracting
+it and running
+.Qq "make; make install;"
+inside the
+.Qq "thingmenu-*"
+directory.
+The prefix for the installation can easily set using
+.Qq "PREFIX=/usr make install".
+.Ed
+.
+.Sh OPTIONS
+.Nm
+options and default settings.
+.Pp
+.Bl -tag -width ".Fl test Ao Ar string Ac"
+.
+.It Fl x
+Do not append a
+.Qq "Cancel"
+menu item.
+.
+.Bd -filled
+.It Fl s
+Disable the oneshot behaviour. After one button click
+.Nm
+won't exit,
+except when the
+.Qq "Cancel"
+button is clicked.
+.Ed
+.
+.It Fl o
+Use the horizontal layout.
+.
+.It Fl wh
+Define the overall window height.
+.
+.It Fl ww
+Define the overall window width.
+.
+.It Fl wx
+Define the absolute x position.
+.
+.It Fl wy
+Define the absolute y position.
+.
+.El
+.
+.Sh CUSTOMIZATION 
+.Bd -filled
+.Nm
+is customized by creating a custom config.h and (re)compiling the
+source code.
+.Ed
+.
+.Sh EXAMPLES
+.Bd -filled
+Open a 300px wide menu, which is showing an entry
+.Qq "Reboot now".
+When being clicked this entry will run
+.Qq "reboot".
+After that the menu will not exit (-s).
+.Ed
+.Bd -literal
+	% thingmenu -s -ww 300 -- "Reboot now:reboot"
+
+.Ed
+.Bd -filled
+This will create a centered menu, which is aligned based on the length of the
+label texts. After the first clicked entry it will exit.
+.Ed
+.Bd -literal
+	% thingmenu "Force reboot:reboot -f" "Shutdown:shutdown"
+
+.Ed
+.
+.Sh FILES
+LICENSE, thingmenu-menu.sh, config.def.h, config.h
+.
+.Sh AUTHORS
+See LICENSE file for authors in the distribution.
+.
+.Sh LICENSE
+.Nm
+is released under the MIT/X Consortium License.
+.
+.Sh BUGS
+.Ss "Reporting Bugs"
+Report bugs to: 
+.An "Christoph Lohmann" Aq 20h@R-36.net
+

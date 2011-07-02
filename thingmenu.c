@@ -91,8 +91,12 @@ static void (*handler[LASTEvent]) (XEvent *) = {
 static Display *dpy;
 static DC dc;
 static Window root, win;
-static Bool running = True;
-static int ww = 0, wh = 0, wx = 0, wy = 0;
+static Bool running = True, horizontal = False;
+/*
+ * ww = window width; www = wanted width window; wh = window height;
+ * wx = window x position; wy = window y position;
+ */
+static int ww = 0, www = 0, wh = 0, wx = 0, wy = 0;
 static char *name = "thingmenu";
 
 Entry **entries = NULL;
@@ -384,17 +388,28 @@ setup(void)
 
 	/* init appearance */
 
-	if (ww == 0) {
-		for (i = 0, ww = 0; i < nentries; i++) {
-			ls = textnw(entries[i]->label,
-					strlen(entries[i]->label));
-			if (ls > ww)
-				ww = ls;
-		}
-		ww *= 1.5;
+	for (i = 0, www = 0; i < nentries; i++) {
+		ls = textnw(entries[i]->label,
+				strlen(entries[i]->label));
+		if (ls > www)
+			www = ls;
 	}
-	if (wh == 0)
-		wh = (nentries + 2) * dc.font.height + 4;
+	www *= 1.5;
+
+	if (ww == 0) {
+		if (horizontal) {
+			ww = www * nentries;
+		} else {
+			ww = www;
+		}
+	}
+	if (wh == 0) {
+		if (horizontal) {
+			wh = dc.font.height * 2;
+		} else {
+			wh = nentries * (dc.font.height * 2);
+		}
+	}
 	if (wy == 0)
 		wy = (sh - wh) / 2;
 	if (wx == 0)
@@ -473,22 +488,35 @@ unpress()
 void
 updateentries(void)
 {
-	int i, y = 0, h;
+	int i, x, y, h, w;
 
-	h = wh / nentries;
+	x = 0;
+	y = 0;
+
+	if (horizontal) {
+		h = wh;
+		w = www;
+	} else {
+		h = wh / nentries;
+		w = ww;
+	}
 	for(i = 0; i < nentries; i++) {
-		entries[i]->x = 0;
+		entries[i]->x = x;
 		entries[i]->y = y;
-		entries[i]->w = ww;
+		entries[i]->w = w;
 		entries[i]->h = h;
-		y += h;
+		if (horizontal) {
+			x += w;
+		} else {
+			y += h;
+		}
 	}
 }
 
 void
 usage(char *argv0)
 {
-	fprintf(stderr, "usage: %s [-hs] [-wh height] [-ww width] "
+	fprintf(stderr, "usage: %s [-hxso] [-wh height] [-ww width] "
 			"[-wx x position] [-wy y position] [--] "
 			"label:cmd ...\n", argv0);
 	exit(1);
@@ -497,8 +525,12 @@ usage(char *argv0)
 int
 main(int argc, char *argv[])
 {
+	Bool addexit;
 	char *label, *cmd;
 	int i;
+
+
+	addexit = True;
 
 	if (argc < 2)
 		usage(argv[0]);
@@ -515,6 +547,9 @@ main(int argc, char *argv[])
 		switch (argv[i][1]) {
 		case 'h':
 			usage(argv[0]);
+		case 'o':
+			horizontal = True;
+			break;
 		case 's':
 			oneshot = 0;
 			break;
@@ -539,6 +574,9 @@ main(int argc, char *argv[])
 			default:
 				usage(argv[0]);
 			}
+			break;
+		case 'x':
+			addexit = False;
 			break;
 		default:
 			usage(argv[0]);
@@ -568,12 +606,14 @@ main(int argc, char *argv[])
 	if (nentries < 1)
 		usage(argv[0]);
 
-	entries = realloc(entries, sizeof(entries[0])*(++nentries));
-	entries[nentries-1] = malloc(sizeof(*entries[0]));
-	bzero(entries[nentries-1], sizeof(*entries[0]));
-	entries[nentries-1]->label = strdup("cancel");
-	entries[nentries-1]->cmd = "exit";
-	entries[nentries-1]->forceexit = True;
+	if (addexit) {
+		entries = realloc(entries, sizeof(entries[0])*(++nentries));
+		entries[nentries-1] = malloc(sizeof(*entries[0]));
+		bzero(entries[nentries-1], sizeof(*entries[0]));
+		entries[nentries-1]->label = strdup("cancel");
+		entries[nentries-1]->cmd = "exit";
+		entries[nentries-1]->forceexit = True;
+	}
 
 	if(!setlocale(LC_CTYPE, "") || !XSupportsLocale())
 		fprintf(stderr, "warning: no locale support\n");
