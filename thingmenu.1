@@ -17,7 +17,7 @@
 .Op Fl wx Ar x position
 .Op Fl wy Ar y position
 .Op Fl -
-.Ar [label:]cmd ...
+.Ar label0 cmd0 [label1 cmd1 ...]
 .Ek
 .
 .Sh DESCRIPTION
@@ -94,7 +94,7 @@ When being clicked this entry will run
 After that the menu will not exit (-s).
 .Ed
 .Bd -literal
-	% thingmenu -s -ww 300 -- "Reboot now:reboot"
+	% thingmenu -s -ww 300 -- "Reboot now" reboot
 
 .Ed
 .Bd -filled
@@ -102,7 +102,7 @@ This will create a centered menu, which is aligned based on the length of the
 label texts. After the first clicked entry it will exit.
 .Ed
 .Bd -literal
-	% thingmenu "Force reboot:reboot -f" "Shutdown:shutdown"
+	% thingmenu "Force reboot" "reboot -f" Shutdown shutdown
 
 .Ed
 .

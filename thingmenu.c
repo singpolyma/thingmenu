@@ -518,7 +518,7 @@ usage(char *argv0)
 {
 	fprintf(stderr, "usage: %s [-hxso] [-wh height] [-ww width] "
 			"[-wx x position] [-wy y position] [--] "
-			"label:cmd ...\n", argv0);
+			"label0 cmd0 [label1 cmd1 ...]\n", argv0);
 	exit(1);
 }
 
@@ -585,12 +585,10 @@ main(int argc, char *argv[])
 
 	for (; argv[i]; i++) {
 		label = argv[i];
-		cmd = strchr(label, ':');
-		if (cmd == NULL) {
-			cmd = label;
-		} else {
-			*cmd++ = '\0';
-		}
+		if (!argv[i+1])
+			break;
+		i++;
+		cmd = argv[i];
 
 		entries = realloc(entries, sizeof(entries[0])*(++nentries));
 		entries[nentries-1] = malloc(sizeof(*entries[0]));
