@@ -289,8 +289,10 @@ initfont(const char *fontstr)
 		XFreeFontSet(dpy, dc.font.set);
 	dc.font.set = XCreateFontSet(dpy, fontstr, &missing, &n, &def);
 	if(missing) {
-		while(n--)
-			fprintf(stderr, "svkbd: missing fontset: %s\n", missing[n]);
+		while(n--) {
+			fprintf(stderr, "thingmenu: missing fontset: %s\n",
+					missing[n]);
+		}
 		XFreeStringList(missing);
 	}
 	if(dc.font.set) {
@@ -394,7 +396,7 @@ setup(void)
 		if (ls > www)
 			www = ls;
 	}
-	www *= 1.5;
+	www *= widthscaling;
 
 	if (ww == 0) {
 		if (horizontal) {
