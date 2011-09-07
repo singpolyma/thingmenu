@@ -16,6 +16,7 @@
 .Op Fl ww Ar width
 .Op Fl wx Ar x position
 .Op Fl wy Ar y position
+.Op Fl ws Ar width scaling
 .Op Fl -
 .Ar label0 cmd0 [label1 cmd1 ...]
 .Ek
@@ -76,9 +77,12 @@ Define the absolute x position.
 .It Fl wy
 Define the absolute y position.
 .
+.It Fl ws
+Define the width scaling ws.
+.
 .El
 .
-.Sh CUSTOMIZATION 
+.Sh CUSTOMIZATION
 .Bd -filled
 .Nm
 is customized by creating a custom config.h and (re)compiling the
@@ -118,6 +122,6 @@ is released under the MIT/X Consortium License.
 .
 .Sh BUGS
 .Ss "Reporting Bugs"
-Report bugs to: 
+Report bugs to:
 .An "Christoph Lohmann" Aq 20h@R-36.net
 
