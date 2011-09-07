@@ -23,9 +23,9 @@ config.h:
 	@echo CC $<
 	@${CC} -c ${CFLAGS} $<
 
-${OBJ}: config.mk
+${OBJ}: config.h config.mk
 
-${NAME}: config.h ${OBJ}
+${NAME}: ${OBJ}
 	@echo CC -o $@
 	@${CC} -o $@ ${OBJ} ${LDFLAGS}
 
@@ -63,4 +63,4 @@ uninstall:
 	@echo removing manual page from ${DESTDIR}${PREFIX}/man1
 	@rm -f ${DESTDIR}${MANPREFIX}/man1/${NAME}.1
 
-.PHONY: all options clean dist install uninstall
+.PHONY: all options clean dist install uninstall config.h
