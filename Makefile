@@ -63,4 +63,4 @@ uninstall:
 	@echo removing manual page from ${DESTDIR}${PREFIX}/man1
 	@rm -f ${DESTDIR}${MANPREFIX}/man1/${NAME}.1
 
-.PHONY: all options clean dist install uninstall config.h
+.PHONY: all options clean dist install uninstall
