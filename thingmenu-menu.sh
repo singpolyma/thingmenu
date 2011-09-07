@@ -8,7 +8,7 @@ case "$1" in
 			"svkbd de" "svkbd-de -wy -16" \
 			"svkbd en" "svkbd-en -wy -16" \
 			"svkbd arrows" "svkbd-arrows -wy -16" \
-			"back" "thinkpad-menu.sh"
+			"back" "thinmenu-menu.sh"
 		;;
 	"conn")
 		thingmenu $POSARGS -- \
@@ -18,7 +18,7 @@ case "$1" in
 			"WiFi stop" "sudo conn -k wifi" \
 			"Ethernet start" "sudo conn -s eth" \
 			"Ethernet stop" "sudo conn -k eth" \
-			"back" "thinkpad-menu.sh"
+			"back" "thinmenu-menu.sh"
 		;;
 	"fn")
 		thingmenu $POSARGS -- \
@@ -29,21 +29,21 @@ case "$1" in
 			"hibernate" "pm-hibernate" \
 			"rotate" "thinkpad-rotate.sh" \
 			"monitor switch" "thinkpad-fn-f7.sh" \
-			"back" "thinkpad-menu.sh"
+			"back" "thinmenu-menu.sh"
 		;;
 	"sound")
 		thingmenu $POSARGS -- \
 			"volume +10%" "amixer set Master 10%+" \
 			"volume -10%" "amixer set Master 10%-" \
 			"toggle mute" "amixer set Master toggle" \
-			"back" "thinkpad-menu.sh"
+			"back" "thinmenu-menu.sh"
 		;;
 	*)
 		thingmenu $POSARGS -- \
-			"svkbd menu" "thinkpad-menu.sh svkbd" \
-			"conn menu" "thinkpad-menu.sh conn" \
-			"fn menu" "thinkpad-menu.sh fn" \
-			"sound menu" "thinkpad-menu.sh sound" \
+			"svkbd menu" "thinmenu-menu.sh svkbd" \
+			"conn menu" "thinmenu-menu.sh conn" \
+			"fn menu" "thinmenu-menu.sh fn" \
+			"sound menu" "thinmenu-menu.sh sound" \
 			"xkill" "xkill"
 		;;
 esac
