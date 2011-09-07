@@ -598,7 +598,7 @@ main(int argc, char *argv[])
 
 		entries = realloc(entries, sizeof(entries[0])*(++nentries));
 		entries[nentries-1] = malloc(sizeof(*entries[0]));
-		bzero(entries[nentries-1], sizeof(*entries[0]));
+		memset(entries[nentries-1], 0, sizeof(*entries[0]));
 
 		entries[nentries-1]->label = strdup(label);
 		if (entries[nentries-1]->label == NULL)
@@ -613,7 +613,7 @@ main(int argc, char *argv[])
 	if (addexit) {
 		entries = realloc(entries, sizeof(entries[0])*(++nentries));
 		entries[nentries-1] = malloc(sizeof(*entries[0]));
-		bzero(entries[nentries-1], sizeof(*entries[0]));
+		memset(entries[nentries-1], 0, sizeof(*entries[0]));
 		entries[nentries-1]->label = strdup("cancel");
 		entries[nentries-1]->cmd = "exit";
 		entries[nentries-1]->forceexit = True;
