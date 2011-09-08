@@ -562,7 +562,7 @@ main(int argc, char *argv[])
 				i++;
 				break;
 			case 's':
-				widthscaling = atoi(argv[i+1]);
+				widthscaling = atof(argv[i+1]);
 				i++;
 				break;
 			case 'w':
