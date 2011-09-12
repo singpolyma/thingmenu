@@ -93,7 +93,7 @@ static DC dc;
 static Window root, win;
 static Bool running = True, horizontal = False;
 /*
- * ww = window width; www = wanted width window; wh = window height;
+ * ww = window width; www = wanted window width; wh = window height;
  * wx = window x position; wy = window y position;
  */
 static int ww = 0, www = 0, wh = 0, wx = 0, wy = 0;
