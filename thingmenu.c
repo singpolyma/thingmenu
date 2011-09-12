@@ -73,7 +73,7 @@ static void press(Entry *e);
 static void run(void);
 static void setup(void);
 static int textnw(const char *text, uint len);
-static void unpress(void);
+static void unpress(Entry *e);
 static void updateentries(void);
 
 /* variables */
@@ -147,7 +147,7 @@ buttonrelease(XEvent *e)
 	Entry *en;
 
 	if((en = findentry(ev->x, ev->y)))
-		unpress();
+		unpress(en);
 }
 
 void
@@ -322,38 +322,7 @@ initfont(const char *fontstr)
 void
 leavenotify(XEvent *e)
 {
-	unpress();
-}
-
-void
-runentry(Entry *e)
-{
-	char *shell;
-
-	if (fork()) {
-		if (oneshot || e->forceexit) {
-			XDestroyWindow(dpy, win);
-			exit(0);
-		}
-		return;
-	}
-	if (fork())
-		exit(0);
-
-	shell = getenv("SHELL");
-	if (!shell)
-		shell = "/bin/sh";
-
-	execlp(shell, basename(shell), "-c", e->cmd, (char *)NULL);
-}
-
-void
-press(Entry *e)
-{
-	e->pressed = !e->pressed;
-
-	runentry(e);
-	drawentry(e);
+	unpress(NULL);
 }
 
 void
@@ -475,14 +444,51 @@ textnw(const char *text, uint len)
 }
 
 void
-unpress()
+runentry(Entry *e)
+{
+	char *shell;
+
+	if (fork()) {
+		if (oneshot || e->forceexit) {
+			XDestroyWindow(dpy, win);
+			exit(0);
+		}
+		return;
+	}
+	if (fork())
+		exit(0);
+
+	shell = getenv("SHELL");
+	if (!shell)
+		shell = "/bin/sh";
+
+	execlp(shell, basename(shell), "-c", e->cmd, (char *)NULL);
+}
+
+void
+press(Entry *e)
+{
+	e->pressed = !e->pressed;
+
+	drawentry(e);
+}
+
+void
+unpress(Entry *e)
 {
 	int i;
 
-	for(i = 0; i < nentries; i++) {
-		if(entries[i]->pressed) {
-			entries[i]->pressed = 0;
-			drawentry(entries[i]);
+	if (e != NULL) {
+		e->pressed = !e->pressed;
+
+		runentry(e);
+		drawentry(e);
+	} else {
+		for(i = 0; i < nentries; i++) {
+			if(entries[i]->pressed) {
+				entries[i]->pressed = 0;
+				drawentry(entries[i]);
+			}
 		}
 	}
 }
