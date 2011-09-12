@@ -102,6 +102,7 @@ static char *name = "thingmenu";
 Entry **entries = NULL;
 int nentries = 0;
 int oneshot = 1;
+Bool ispressing = 0;
 
 /* configuration, allows nested code to access above variables */
 #include "config.h"
@@ -118,10 +119,18 @@ motionnotify(XEvent *e)
 				&& ev->y > entries[i]->y
 				&& ev->y < entries[i]->y + entries[i]->h) {
 			if (entries[i]->highlighted != True) {
-				entries[i]->highlighted = True;
+				if (ispressing) {
+					entries[i]->pressed = True;
+				} else {
+					entries[i]->highlighted = True;
+				}
 				drawentry(entries[i]);
 			}
 			continue;
+		}
+		if (entries[i]->pressed == True) {
+			entries[i]->pressed = False;
+			drawentry(entries[i]);
 		}
 		if (entries[i]->highlighted == True) {
 			entries[i]->highlighted = False;
@@ -136,6 +145,8 @@ buttonpress(XEvent *e)
 	XButtonPressedEvent *ev = &e->xbutton;
 	Entry *en;
 
+	ispressing = True;
+
 	if((en = findentry(ev->x, ev->y)))
 		press(en);
 }
@@ -145,6 +156,8 @@ buttonrelease(XEvent *e)
 {
 	XButtonPressedEvent *ev = &e->xbutton;
 	Entry *en;
+
+	ispressing = False;
 
 	if((en = findentry(ev->x, ev->y)))
 		unpress(en);
