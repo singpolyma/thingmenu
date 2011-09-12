@@ -407,9 +407,9 @@ setup(void)
 	}
 	if (wh == 0) {
 		if (horizontal) {
-			wh = dc.font.height * 2;
+			wh = dc.font.height * heightscaling;
 		} else {
-			wh = nentries * (dc.font.height * 2);
+			wh = nentries * dc.font.height * heightscaling;
 		}
 	}
 	if (wy == 0)
@@ -519,7 +519,8 @@ void
 usage(char *argv0)
 {
 	fprintf(stderr, "usage: %s [-hxso] [-wh height] [-ww width] "
-			"[-wx x position] [-wy y position] [--] "
+			"[-wx x position] [-wy y position] [-ws widthscaling] "
+			"[-hs heightscaling] [--] "
 			"label0 cmd0 [label1 cmd1 ...]\n", argv0);
 	exit(1);
 }
@@ -540,7 +541,6 @@ main(int argc, char *argv[])
 	for (; argv[i]; i++) {
 		if (argv[i][0] != '-')
 			break;
-
 		if (argv[i][1] == '-') {
 			i++;
 			break;
@@ -548,7 +548,15 @@ main(int argc, char *argv[])
 
 		switch (argv[i][1]) {
 		case 'h':
-			usage(argv[0]);
+			switch ((i >= argc - 1)? 0 : argv[i][2]) {
+			case 's':
+				heightscaling = atof(argv[i+1]);
+				i++;
+				break;
+			default:
+				usage(argv[0]);
+			}
+			break;
 		case 'o':
 			horizontal = True;
 			break;
