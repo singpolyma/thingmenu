@@ -574,17 +574,17 @@ main(int argc, char *argv[])
 			if (i >= argc - 1)
 				break;
 			bitm = XParseGeometry(argv[i+1], &xr, &yr, &wr, &hr);
-			if(bitm & XValue)
+			if (bitm & XValue)
 				wx = xr;
-			if(bitm & YValue)
+			if (bitm & YValue)
 				wy = yr;
-			if(bitm & WidthValue)
+			if (bitm & WidthValue)
 				ww = (int)wr;
-			if(bitm & HeightValue)
+			if (bitm & HeightValue)
 				wh = (int)hr;
-			if(bitm & XNegative && wx == 0)
+			if (bitm & XNegative && wx == 0)
 				wx = -1;
-			if(bitm & YNegative && wy == 0)
+			if (bitm & YNegative && wy == 0)
 				wy = -1;
 			i++;
 			break;
