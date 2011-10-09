@@ -380,24 +380,28 @@ setup(void)
 	}
 	www *= widthscaling;
 
-	if (ww == 0) {
+	if (!ww) {
 		if (horizontal) {
 			ww = www * nentries;
 		} else {
 			ww = www;
 		}
 	}
-	if (wh == 0) {
+	if (!wh) {
 		if (horizontal) {
 			wh = dc.font.height * heightscaling;
 		} else {
 			wh = nentries * dc.font.height * heightscaling;
 		}
 	}
-	if (wy == 0)
+	if (!wy)
 		wy = (sh - wh) / 2;
-	if (wx == 0)
+	if (wy < 0)
+		wy = sh + wy - wh;
+	if (!wx)
 		wx = (sw - ww) / 2;
+	if (wx < 0)
+		wx = sw + wx - ww;
 
 	dc.norm[ColBG] = getcolor(normbgcolor);
 	dc.norm[ColFG] = getcolor(normfgcolor);
@@ -537,8 +541,7 @@ updateentries(void)
 void
 usage(char *argv0)
 {
-	fprintf(stderr, "usage: %s [-hxso] [-wh height] [-ww width] "
-			"[-wx x position] [-wy y position] [-ws widthscaling] "
+	fprintf(stderr, "usage: %s [-hxso] [-g geometry] [-ws widthscaling] "
 			"[-hs heightscaling] [--] "
 			"label0 cmd0 [label1 cmd1 ...]\n", argv0);
 	exit(1);
@@ -549,7 +552,8 @@ main(int argc, char *argv[])
 {
 	Bool addexit;
 	char *label, *cmd;
-	int i;
+	int i, xr, yr, bitm;
+	unsigned int wr, hr;
 
 
 	addexit = True;
@@ -566,6 +570,24 @@ main(int argc, char *argv[])
 		}
 
 		switch (argv[i][1]) {
+		case 'g':
+			if (i >= argc - 1)
+				break;
+			bitm = XParseGeometry(argv[i+1], &xr, &yr, &wr, &hr);
+			if(bitm & XValue)
+				wx = xr;
+			if(bitm & YValue)
+				wy = yr;
+			if(bitm & WidthValue)
+				ww = (int)wr;
+			if(bitm & HeightValue)
+				wh = (int)hr;
+			if(bitm & XNegative && wx == 0)
+				wx = -1;
+			if(bitm & YNegative && wy == 0)
+				wy = -1;
+			i++;
+			break;
 		case 'h':
 			switch ((i >= argc - 1)? 0 : argv[i][2]) {
 			case 's':
@@ -584,24 +606,8 @@ main(int argc, char *argv[])
 			break;
 		case 'w':
 			switch ((i >= argc - 1)? 0 : argv[i][2]) {
-			case 'h':
-				wh = atoi(argv[i+1]);
-				i++;
-				break;
 			case 's':
 				widthscaling = atof(argv[i+1]);
-				i++;
-				break;
-			case 'w':
-				ww = atoi(argv[i+1]);
-				i++;
-				break;
-			case 'x':
-				wx = atoi(argv[i+1]);
-				i++;
-				break;
-			case 'y':
-				wy = atoi(argv[i+1]);
 				i++;
 				break;
 			default:
