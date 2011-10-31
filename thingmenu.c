@@ -475,8 +475,7 @@ runentry(Entry *e)
 
 	if (fork()) {
 		if (oneshot || e->forceexit) {
-			XDestroyWindow(dpy, win);
-			exit(0);
+			running = False;
 		}
 		return;
 	}
