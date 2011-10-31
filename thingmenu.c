@@ -276,7 +276,7 @@ void
 drawentry(Entry *e)
 {
 	int x, y, h, len;
-	XRectangle r = { e->x, e->y, e->w, e->h};
+	XRectangle r = { e->x, e->y, e->w, e->h };
 	const char *l;
 	ulong *col;
 
