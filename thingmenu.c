@@ -145,6 +145,10 @@ buttonpress(XEvent *e)
 	XButtonPressedEvent *ev = &e->xbutton;
 	Entry *en;
 
+	/* We don't care about other mouse buttons */
+	if(ev->button != Button1)
+		return;
+
 	ispressing = True;
 
 	if((en = findentry(ev->x, ev->y)))
@@ -156,6 +160,10 @@ buttonrelease(XEvent *e)
 {
 	XButtonPressedEvent *ev = &e->xbutton;
 	Entry *en;
+
+	/* We don't care about other mouse buttons */
+	if(ev->button != Button1)
+		return;
 
 	ispressing = False;
 
