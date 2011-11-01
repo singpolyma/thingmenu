@@ -56,6 +56,7 @@ typedef struct {
 
 /* function declarations */
 static void motionnotify(XEvent *e);
+static void keyrelease(XEvent *e);
 static void buttonpress(XEvent *e);
 static void buttonrelease(XEvent *e);
 static void cleanup(void);
@@ -79,6 +80,7 @@ static void updateentries(void);
 /* variables */
 static int screen;
 static void (*handler[LASTEvent]) (XEvent *) = {
+	[KeyRelease] = keyrelease,
 	[ButtonPress] = buttonpress,
 	[ButtonRelease] = buttonrelease,
 	[ConfigureNotify] = configurenotify,
@@ -136,6 +138,55 @@ motionnotify(XEvent *e)
 			entries[i]->highlighted = False;
 			drawentry(entries[i]);
 		}
+	}
+}
+
+void
+keyrelease(XEvent *e)
+{
+	int i;
+	XKeyEvent *xkey = &e->xkey;
+	KeySym key = XLookupKeysym(xkey, 0);
+
+	/* Find highlighted entry */
+	for (i = 0; i < nentries && !entries[i]->highlighted; i++);
+
+	switch (key) {
+	case XK_k:
+		key = XK_Up;
+	case XK_j:
+		if(key == XK_j)
+			key = XK_Down;
+	case XK_Up:
+	case XK_Down:
+		if (i < nentries) {
+			entries[i]->highlighted = False;
+			drawentry(entries[i]);
+		}
+
+		if (key == XK_Up) {
+			i = ((i - 1) + nentries) % nentries;
+		} else if(key == XK_Down) {
+			if (i < nentries) {
+				i = (i + 1) % nentries;
+			} else {
+				i = 0;
+			}
+		}
+
+		entries[i]->highlighted = True;
+		drawentry(entries[i]);
+		break;
+	case XK_Return:
+	case XK_space:
+		if (i < nentries) {
+			press(entries[i]);
+			unpress(entries[i]);
+		}
+		break;
+	case XK_Escape:
+		running = False;
+		break;
 	}
 }
 
@@ -431,9 +482,9 @@ setup(void)
 	win = XCreateWindow(dpy, root, wx, wy, ww, wh, 0,
 			    CopyFromParent, CopyFromParent, CopyFromParent,
 			    CWOverrideRedirect | CWBorderPixel | CWBackingPixel, &wa);
-	XSelectInput(dpy, win, StructureNotifyMask|ButtonReleaseMask|
-			ButtonPressMask|ExposureMask|LeaveWindowMask|
-			PointerMotionMask);
+	XSelectInput(dpy, win, StructureNotifyMask|KeyReleaseMask|
+	                       ButtonReleaseMask|ButtonPressMask|
+	                       ExposureMask|LeaveWindowMask|PointerMotionMask);
 
 	sizeh = XAllocSizeHints();
 	sizeh->flags = PMaxSize | PMinSize;
